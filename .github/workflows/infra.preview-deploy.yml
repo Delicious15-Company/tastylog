@@ -13,9 +13,22 @@ permissions:
   id-token: write
   contents: read
 
+env:
+  TERRAFORM_VERSION: 1.14.6
+
+defaults:
+  run:
+    shell: bash
+    working-directory: "10_infra/"
+
 jobs:
   preview:
     name: "Preview"
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Hello, world!"
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+      - name: Setup terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
