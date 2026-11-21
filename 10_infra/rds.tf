@@ -54,9 +54,9 @@ resource "aws_db_instance" "mysql_standalone" {
 
   instance_class = "db.t3.micro"
 
-  allocated_storage      = 20
-  max_allocated_storage  = 50
-  storage_type           = "gp2"
+  allocated_storage     = 20
+  max_allocated_storage = 50
+  storage_type          = "gp2"
 
   multi_az = false
 
