@@ -123,6 +123,7 @@ jobs:
         run: terraform init -no-color
 
       - name: Terraform Apply
+        id: terraform-apply
         run: |
           terraform apply \
             -var "project=${{ env.TF_PROJECT }}" \
@@ -132,3 +133,35 @@ jobs:
             -input=false \
             -no-color \
             -auto-approve
+
+      - name: Slack notify
+        if: always()
+        uses: slackapi/slack-github-action@v4.1.0
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload: |
+            {
+              "channel": "C0CLTAF8VLG",
+              "text": "Runner Finished : ${{ steps.terraform-apply.outcome }}",
+              "blocks": [
+                {
+                  "type": "card",
+                  "title": {
+                    "type": "mrkdwn",
+                    "text": "デプロイ完了👻",
+                    "verbatim": false
+                  },
+                  "subtitle": {
+                    "type": "mrkdwn",
+                    "text": "terraform fmt が変更されました。",
+                    "verbatim": false
+                  },
+                  "body": {
+                    "type": "mrkdwn",
+                    "text": "${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}",
+                    "verbatim": false
+                  }
+                }
+              ]
+            }
