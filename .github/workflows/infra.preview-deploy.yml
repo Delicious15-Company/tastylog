@@ -68,6 +68,7 @@ jobs:
             -detailed-exitcode \
 
       - name: Slack notify
+        if: steps.terraform-plan.outputs.exitcode == 2
         uses: slackapi/slack-github-action@v4.1.0
         with:
           method: chat.postMessage
@@ -75,6 +76,7 @@ jobs:
           payload: |
             {
               "channel": "C0CLTAF8VLG",
+              "text": "承認依頼",
               "blocks": [
                 {
                   "type": "card",
@@ -96,3 +98,26 @@ jobs:
                 }
               ]
             }
+  deploy:
+    name: "Deploy"
+    needs: preview
+    if: needs.preview.outputs.TF-PLAN-EXIT-CODE == '2'
+    environment: production
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Setup terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6.3.0
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE_ARN }}
+
+      - name: Terraform Init
+        run: terraform init -no-color
