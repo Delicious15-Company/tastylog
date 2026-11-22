@@ -1,0 +1,39 @@
+name: "z slack notify"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  notify:
+    name: "slack notify"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Slack notify
+        uses: slackapi/slack-github-action@v4.1.0
+        with:
+          channel-id: C0CLTAF8VLG
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "card",
+                  "title": {
+                    "type": "mrkdwn",
+                    "text": "📋 Message Header",
+                    "verbatim": false
+                  },
+                  "subtitle": {
+                    "type": "mrkdwn",
+                    "text": "terraform fmt · v2.14.0 → v2.15.0",
+                    "verbatim": false
+                  },
+                  "body": {
+                    "type": "mrkdwn",
+                    "text": "Hello World 👻.",
+                    "verbatim": false
+                  }
+                }
+              ]
+            }
+          env:
+            SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
