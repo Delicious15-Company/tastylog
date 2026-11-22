@@ -68,7 +68,6 @@ jobs:
             -detailed-exitcode \
 
       - name: Slack notify
-        if: steps.terraform-plan.outputs.exitcode == 2
         uses: slackapi/slack-github-action@v4.1.0
         with:
           method: chat.postMessage
@@ -86,7 +85,7 @@ jobs:
                   },
                   "subtitle": {
                     "type": "mrkdwn",
-                    "text": "terraform fmt が変更されました。承認をお願いします。",
+                    "text": "terraform fmt が変更されました。",
                     "verbatim": false
                   },
                   "body": {
