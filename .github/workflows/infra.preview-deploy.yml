@@ -28,6 +28,8 @@ jobs:
   preview:
     name: "Preview"
     runs-on: ubuntu-latest
+    outputs:
+      TF-PLAN-EXIT-CODE: ${{ steps.terraform-plan.outputs.exitcode }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
@@ -53,6 +55,8 @@ jobs:
         run: terraform validate -no-color
 
       - name: Terraform Plan
+        id: terraform-plan
+        continue-on-error: true
         run: |
           terraform plan \
             -var "project=${{ env.TF_PROJECT }}" \
@@ -62,3 +66,34 @@ jobs:
             -input=false \
             -no-color \
             -detailed-exitcode \
+
+      - name: Slack notify
+        if: steps.terraform-plan.outputs.exitcode == 2
+        uses: slackapi/slack-github-action@v4.1.0
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload: |
+            {
+              "channel": "C0CLTAF8VLG",
+              "blocks": [
+                {
+                  "type": "card",
+                  "title": {
+                    "type": "mrkdwn",
+                    "text": "承認依頼👻",
+                    "verbatim": false
+                  },
+                  "subtitle": {
+                    "type": "mrkdwn",
+                    "text": "terraform fmt が変更されました。承認をお願いします。",
+                    "verbatim": false
+                  },
+                  "body": {
+                    "type": "mrkdwn",
+                    "text": "${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}",
+                    "verbatim": false
+                  }
+                }
+              ]
+            }
