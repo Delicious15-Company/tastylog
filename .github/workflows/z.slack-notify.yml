@@ -11,9 +11,11 @@ jobs:
       - name: Slack notify
         uses: slackapi/slack-github-action@v4.1.0
         with:
-          channel-id: C0CLTAF8VLG
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
           payload: |
             {
+              "channel": "C0CLTAF8VLG",
               "blocks": [
                 {
                   "type": "card",
@@ -35,5 +37,3 @@ jobs:
                 }
               ]
             }
-          env:
-            SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
